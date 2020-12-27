@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from tutorial.quickstart.serializers import UserSerializer, GroupSerializer
 
+
 # Create your views here.
 class UserViewSet(viewsets.ModelViewSet):
     '''
@@ -11,6 +12,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
 
 class GroupViewSet(viewsets.ModelViewSet):
     """

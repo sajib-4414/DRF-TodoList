@@ -16,11 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from tutorial.quickstart import views
+from tutorial.quickstart import views as quickstartviews
+from tutorial.todoapp import views as todoviews
 
 router = routers.DefaultRouter()
-router.register(r'users',views.UserViewSet) #using viewsets url conf is auto generated from users
-router.register(r'groups',views.GroupViewSet) #using viewsets url conf is auto generated
+router.register(r'users',quickstartviews.UserViewSet) #using viewsets url conf is auto generated from users
+router.register(r'groups',quickstartviews.GroupViewSet) #using viewsets url conf is auto generated
+router.register(r'todos',todoviews.TodoItemViewSet)#using viewsets url conf is auto generated
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
