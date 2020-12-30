@@ -23,7 +23,7 @@ class TodoListAPIView(APIView):
     only for list
     '''
     def get(self, request, format=None):
-        todos = TodoItem.objects.all()
+        todos = TodoItem.objects.filter(user__username=request.user.username)
         serializer = TodoOutputSerializer(todos, many=True)
         return Response(serializer.data)
 
