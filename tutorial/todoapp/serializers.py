@@ -24,6 +24,13 @@ class TodoInputSerializer(serializers.Serializer):
 
 
 class TodoOutputSerializer(serializers.ModelSerializer):
+    user_created = serializers.SerializerMethodField('get_user_created')
+
+    def get_user_created(self, todo):
+        if todo.user:
+            return todo.user.username
+        return ""
+
     class Meta:
         model = TodoItem
         fields = ['title', 'description','user_created',]
