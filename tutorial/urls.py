@@ -18,6 +18,7 @@ from django.urls import path, include
 from rest_framework import routers
 from tutorial.quickstart import views as quickstartviews
 from tutorial.todoapp import views as todoviews
+from rest_framework.urlpatterns import format_suffix_patterns
 
 router = routers.DefaultRouter()
 router.register(r'users',quickstartviews.UserViewSet) #using viewsets url conf is auto generated from users
@@ -27,8 +28,16 @@ router.register(r'todos',todoviews.TodoItemViewSet)#using viewsets url conf is a
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 
+# urlpatterns = [
+#     path('', include(router.urls)),
+#
+# ]
+
 urlpatterns = [
-    path('', include(router.urls)),
+    path('todonew/', todoviews.TodoListAPIView.as_view()),
+    path('todonew/<int:pk>/', todoviews.TodoDetailAPIView.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
