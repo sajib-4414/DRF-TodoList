@@ -23,14 +23,15 @@ class TodoListAPIView(APIView):
     only for list
     '''
     def get(self, request, format=None):
-        todos = TodoItem.objects.all()
+        todos = TodoItem.objects.filter(user__username=request.user.username)
         serializer = TodoOutputSerializer(todos, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        data = request.data.copy()
-        data['user_created'] = request.user.username
-        serializer = TodoInputSerializer(data=data)
+        # data = request.data.copy()
+        # data['user_created'] = request.user.username
+        serializer = TodoInputSerializer(data=request.data.copy())
+        serializer.context["username"] = request.user.username
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
