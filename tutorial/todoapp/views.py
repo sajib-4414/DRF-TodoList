@@ -50,7 +50,7 @@ class TodoDetailAPIView(APIView):
 
     def get(self, request, pk, format=None):
         todo = self.get_object(pk)
-        serializer = TodoItemSerializer(todo)
+        serializer = TodoOutputSerializer(todo)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):

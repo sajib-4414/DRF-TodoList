@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser, User
 class TodoItem(models.Model):
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=200)
+    is_completed = models.BooleanField(default=False)
+    due_datetime = models.DateTimeField(null=True,blank=True)
     user = models.ForeignKey(to=User,on_delete=models.CASCADE,null=True)
 
     def __str__(self):
