@@ -36,6 +36,7 @@ router.register(r'todos',todoviews.TodoItemViewSet)#using viewsets url conf is a
 urlpatterns = [
     path('todonew/', todoviews.TodoListAPIView.as_view()),
     path('todonew/<int:pk>/', todoviews.TodoDetailAPIView.as_view()),
+    path('users/', todoviews.UserCreateAPIView.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
 ]
