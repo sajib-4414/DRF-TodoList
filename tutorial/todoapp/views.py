@@ -7,7 +7,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 
 from tutorial.todoapp.models import TodoItem
-from tutorial.todoapp.serializers import TodoItemSerializer, TodoOutputSerializer, TodoInputSerializer, UserSerializer
+from tutorial.todoapp.serializers import TodoItemSerializer, TodoOutputSerializer, TodoInputSerializer, UserSerializer, \
+    TodoUpdateSerializer
 
 
 class TodoItemViewSet(viewsets.ModelViewSet):
@@ -55,7 +56,7 @@ class TodoDetailAPIView(APIView):
 
     def put(self, request, pk, format=None):
         todo = self.get_object(pk)
-        serializer = TodoItemSerializer(todo, data=request.data)
+        serializer = TodoUpdateSerializer(todo, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

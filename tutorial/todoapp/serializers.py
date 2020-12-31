@@ -21,9 +21,36 @@ class TodoInputSerializer(serializers.Serializer):
         return todoItem
 
     def update(self, instance, validated_data):
+        # instance.is_completed = validated_data.get('is_completed', instance.is_completed)
         # instance.email = validated_data.get('email', instance.email)
         # instance.content = validated_data.get('content', instance.content)
         # instance.created = validated_data.get('created', instance.created)
+        return instance
+
+
+class TodoUpdateSerializer(serializers.Serializer):
+    title = serializers.CharField(required=False,max_length=100)
+    description = serializers.CharField(required=False,max_length=200)
+    is_completed = serializers.BooleanField(required=False)
+
+    # def create(self, validated_data):
+    #     todoItem = TodoItem.objects.create(**validated_data)
+    #     username = self.context["username"]
+    #     todoItem.user = User.objects.get(username=username)
+    #     todoItem.save()
+    #     return todoItem
+
+    def update(self, instance, validated_data):
+        if 'title' in validated_data:
+            instance.title = validated_data.get('title', instance.title)
+        if 'description' in validated_data:
+            instance.description = validated_data.get('description', instance.description)
+        if 'is_completed' in validated_data:
+            instance.is_completed = validated_data.get('is_completed', instance.is_completed)
+        # instance.email = validated_data.get('email', instance.email)
+        # instance.content = validated_data.get('content', instance.content)
+        # instance.created = validated_data.get('created', instance.created)
+        instance.save()
         return instance
 
 
