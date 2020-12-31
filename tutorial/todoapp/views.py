@@ -28,9 +28,10 @@ class TodoListAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        data = request.data.copy()
-        data['user_created'] = request.user.username
-        serializer = TodoInputSerializer(data=data)
+        # data = request.data.copy()
+        # data['user_created'] = request.user.username
+        serializer = TodoInputSerializer(data=request.data.copy())
+        serializer.context["username"] = request.user.username
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

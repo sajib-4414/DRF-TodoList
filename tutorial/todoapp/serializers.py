@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from tutorial.todoapp.models import TodoItem
 
@@ -11,10 +12,13 @@ class TodoItemSerializer(serializers.ModelSerializer):
 class TodoInputSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=100)
     description = serializers.CharField(max_length=200)
-    user_created = serializers.CharField(max_length=100)
 
     def create(self, validated_data):
-        return TodoItem(**validated_data)
+        todoItem = TodoItem.objects.create(**validated_data)
+        username = self.context["username"]
+        todoItem.user = User.objects.get(username=username)
+        todoItem.save()
+        return todoItem
 
     def update(self, instance, validated_data):
         # instance.email = validated_data.get('email', instance.email)
