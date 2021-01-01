@@ -42,7 +42,7 @@ class TodoListAPIView(APIView):
 
 class TodoDetailAPIView(APIView):
     """
-    Retrieve, update or delete a snippet instance.
+    Retrieve, update or delete a todoitem instance.
     """
     permission_classes = [IsAuthenticated]
 
