@@ -1,12 +1,14 @@
+from django.contrib.auth.models import User
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from django.http import Http404
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 
 from tutorial.todoapp.models import TodoItem
-from tutorial.todoapp.serializers import TodoItemSerializer, TodoOutputSerializer, TodoInputSerializer
+from tutorial.todoapp.serializers import TodoItemSerializer, TodoOutputSerializer, TodoInputSerializer, UserSerializer, \
+    TodoUpdateSerializer
 
 
 class TodoItemViewSet(viewsets.ModelViewSet):
@@ -28,8 +30,6 @@ class TodoListAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        # data = request.data.copy()
-        # data['user_created'] = request.user.username
         serializer = TodoInputSerializer(data=request.data.copy())
         serializer.context["username"] = request.user.username
         if serializer.is_valid():
@@ -51,12 +51,12 @@ class TodoDetailAPIView(APIView):
 
     def get(self, request, pk, format=None):
         todo = self.get_object(pk)
-        serializer = TodoItemSerializer(todo)
+        serializer = TodoOutputSerializer(todo)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
         todo = self.get_object(pk)
-        serializer = TodoItemSerializer(todo, data=request.data)
+        serializer = TodoUpdateSerializer(todo, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -66,3 +66,9 @@ class TodoDetailAPIView(APIView):
         todo = self.get_object(pk)
         todo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserCreateAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
