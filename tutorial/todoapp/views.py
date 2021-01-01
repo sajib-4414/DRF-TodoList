@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status, generics
 from django.http import Http404
@@ -64,8 +65,15 @@ class TodoDetailAPIView(APIView):
 
     def delete(self, request, pk, format=None):
         todo = self.get_object(pk)
+        request_username = request.user.username
+        todo_username = ""
+        if todo.user:
+            todo_username = todo.user.username
+        if request_username!=todo_username:
+            raise ValidationError("You are not allowed to perform this action.")
         todo.delete()
         return Response({"delete": "delete success"},status=status.HTTP_204_NO_CONTENT)
+
 
 
 class UserCreateAPIView(generics.CreateAPIView):
