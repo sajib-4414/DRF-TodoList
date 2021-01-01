@@ -73,6 +73,21 @@ class TodoUpdateSerializer(serializers.Serializer):
         instance.save()
         return instance
 
+    def validate(self, data):
+        """
+        Check that the remind me date is before the before due date.
+        """
+        print(data['remind_me_datetime'])
+        if 'remind_me_datetime' in data:
+            if 'due_datetime' in data:
+                if not (data['due_datetime'] > data['remind_me_datetime']):
+                    raise serializers.ValidationError({"remind_me_date": "Reminder date has to be before due date"})
+            else:
+                instance = getattr(self, 'instance', None)
+                if not (instance.due_datetime > data['remind_me_datetime']):
+                    raise serializers.ValidationError({"remind_me_date": "Reminder date has to be before due date"})
+        return data
+
 '''
 This serializer is used to output todos in a certain format
 '''
