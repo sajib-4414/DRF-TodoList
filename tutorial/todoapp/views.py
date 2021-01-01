@@ -59,6 +59,13 @@ class TodoDetailAPIView(APIView):
 
     def put(self, request, pk, format=None):
         todo = self.get_object(pk)
+        request_username = request.user.username
+        todo_username = ""
+        if todo.user:
+            todo_username = todo.user.username
+        if request_username!=todo_username:
+            raise ValidationError("You are not allowed to perform this action.")
+
         serializer = TodoUpdateSerializer(todo, data=request.data)
         if serializer.is_valid():
             serializer.save()
