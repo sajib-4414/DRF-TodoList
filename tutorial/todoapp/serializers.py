@@ -27,8 +27,10 @@ class TodoInputSerializer(serializers.Serializer):
     def create(self, validated_data):
         todoItem = TodoItem.objects.create(**validated_data)
         username = self.context["username"]
-        todoItem.user = User.objects.get(username=username)
-        todoItem.save()
+        user_fetched = User.objects.filter(username=username).first()
+        if user_fetched:
+            todoItem.user = user_fetched
+            todoItem.save()
         return todoItem
 
     def validate(self, data):
