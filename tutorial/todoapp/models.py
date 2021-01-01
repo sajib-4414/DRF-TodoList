@@ -7,7 +7,10 @@ class TodoItem(models.Model):
     description = models.CharField(max_length=200)
     is_completed = models.BooleanField(default=False)
     due_datetime = models.DateTimeField(null=True,blank=True)
+    remind_me_datetime = models.DateTimeField(null=True,blank=True)
     user = models.ForeignKey(to=User,on_delete=models.CASCADE,null=True)
+    # the reason why user is null is, we do not want to take user input from the user,
+    # instead it will be populated from the request
 
     def __str__(self):
         data = (self.title[:30] + '..') if len(self.title) > 30 else self.title
