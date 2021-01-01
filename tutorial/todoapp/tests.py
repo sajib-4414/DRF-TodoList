@@ -74,6 +74,13 @@ def get_todo_request_body():
             'due_datetime':'20-01-2020 15:20'
         }
 
+def get_authenticated_client():
+    user_creation_params = get_user_creation_body_params()
+    user = User.objects.create_user(**user_creation_params)
+    client = APIClient()
+    client.force_authenticate(user=user)
+    return client
+
 
 class TodoCreationAPITests(TestCase):
 
@@ -84,47 +91,40 @@ class TodoCreationAPITests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_todo_success(self):
+        client = get_authenticated_client()
+
         body_params = get_todo_request_body()
-        user_creation_params = get_user_creation_body_params()
-        user = User.objects.create_user(**user_creation_params)
-        client = APIClient()
-        client.force_authenticate(user=user)
         response = client.post('/todonew/', body_params)
+        todo_item = response.data
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(todo_item['id'],1) #because it is the first item created in the test db
 
     def test_create_todo_with_invalid_remind_date(self):
+        client = get_authenticated_client()
+
         body_params = get_todo_request_body()
         body_params['remind_me_datetime'] = '21-01-2020 15:20'
-        user_creation_params = get_user_creation_body_params()
-        user = User.objects.create_user(**user_creation_params)
-        client = APIClient()
-        client.force_authenticate(user=user)
+
         response = client.post('/todonew/', body_params)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_todo_with_invalid_remind_date(self):
-        user_creation_params = get_user_creation_body_params()
-        user = User.objects.create_user(**user_creation_params)
+        client = get_authenticated_client()
 
-        object_init_values = get_todo_request_body()
-        del object_init_values['due_datetime']
-        date_time_str = '20-01-2020 15:20'
-        due_date_object = datetime.strptime(date_time_str, '%d-%m-%Y %H:%M')
-        todo_object = TodoItem(**object_init_values)
-        todo_object.due_datetime = due_date_object
-        todo_object.save()
-        object_id = todo_object.id
+        todo_creation_params = get_todo_request_body()
+        todo_update_body_params = dict()
+        todo_update_body_params['remind_me_datetime'] = '21-01-2020 15:20'
 
-        body_params = dict()
-        body_params['remind_me_datetime'] = '21-01-2020 15:20'
-        client = APIClient()
-        client.force_authenticate(user=user)
-        response = client.put('/todonew/'+str(object_id) + '/', body_params)
+        #first create a todoitem
+        response1 = client.post('/todonew/', todo_creation_params)
+        todo_item_created = response1.data
+
+        #now try updating it
+        response = client.put('/todonew/'+str(todo_item_created['id']) + '/', todo_update_body_params)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_todo_of_another_user_with_valid_remind_date(self):
-        user_creation_params = get_user_creation_body_params()
-        user = User.objects.create_user(**user_creation_params)
+        client = get_authenticated_client()
 
         object_init_values = get_todo_request_body()
         del object_init_values['due_datetime']
@@ -137,33 +137,25 @@ class TodoCreationAPITests(TestCase):
 
         body_params = dict()
         body_params['remind_me_datetime'] = '22-01-2020 15:19'
-        client = APIClient()
-        client.force_authenticate(user=user)
+
         response = client.put('/todonew/'+str(object_id) + '/', body_params)
-        # todo_updated = response.data
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        # self.assertEqual(todo_updated['title'],'todotitle')
 
     def test_update_todo_of_own_with_valid_remind_date(self):
-        user_creation_params = get_user_creation_body_params()
-        user = User.objects.create_user(**user_creation_params)
+        client = get_authenticated_client()
 
-        object_init_values = get_todo_request_body()
-        del object_init_values['due_datetime']
-        date_time_str = '22-01-2020 15:20'
-        due_date_object = datetime.strptime(date_time_str, '%d-%m-%Y %H:%M')
-        todo_object = TodoItem(**object_init_values)
-        todo_object.due_datetime = due_date_object
-        todo_object.user = user
-        todo_object.save()
-        object_id = todo_object.id
+        todo_creation_params = get_todo_request_body()
+        todo_update_body_params = dict()
+        todo_update_body_params['remind_me_datetime'] = '20-01-2020 15:19'
 
-        body_params = dict()
-        body_params['remind_me_datetime'] = '22-01-2020 15:19'
-        client = APIClient()
-        client.force_authenticate(user=user)
-        response = client.put('/todonew/'+str(object_id) + '/', body_params)
-        todo_updated = response.data
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #first create a todoitem
+        response1 = client.post('/todonew/', todo_creation_params)
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        todo_item_created = response1.data
+
+        #now try updating it
+        response2 = client.put('/todonew/'+str(todo_item_created['id']) + '/', todo_update_body_params)
+        todo_updated = response2.data
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(todo_updated['title'],'todotitle')
 
