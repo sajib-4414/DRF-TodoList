@@ -12,7 +12,11 @@ class TodoItemSerializer(serializers.ModelSerializer):
 class TodoInputSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=100)
     description = serializers.CharField(max_length=200)
+    due_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',])
 
+    """
+    A serializer can either implement create or update methods or both. 
+    """
     def create(self, validated_data):
         todoItem = TodoItem.objects.create(**validated_data)
         username = self.context["username"]
@@ -20,26 +24,16 @@ class TodoInputSerializer(serializers.Serializer):
         todoItem.save()
         return todoItem
 
-    def update(self, instance, validated_data):
-        # instance.is_completed = validated_data.get('is_completed', instance.is_completed)
-        # instance.email = validated_data.get('email', instance.email)
-        # instance.content = validated_data.get('content', instance.content)
-        # instance.created = validated_data.get('created', instance.created)
-        return instance
-
 
 class TodoUpdateSerializer(serializers.Serializer):
     title = serializers.CharField(required=False,max_length=100)
     description = serializers.CharField(required=False,max_length=200)
     is_completed = serializers.BooleanField(required=False)
+    due_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',],required=False)
 
-    # def create(self, validated_data):
-    #     todoItem = TodoItem.objects.create(**validated_data)
-    #     username = self.context["username"]
-    #     todoItem.user = User.objects.get(username=username)
-    #     todoItem.save()
-    #     return todoItem
-
+    """
+    A serializer can either implement create or update methods or both. 
+    """
     def update(self, instance, validated_data):
         if 'title' in validated_data:
             instance.title = validated_data.get('title', instance.title)
@@ -47,6 +41,8 @@ class TodoUpdateSerializer(serializers.Serializer):
             instance.description = validated_data.get('description', instance.description)
         if 'is_completed' in validated_data:
             instance.is_completed = validated_data.get('is_completed', instance.is_completed)
+        if 'due_datetime' in validated_data:
+            instance.due_datetime = validated_data.get('due_datetime', instance.due_datetime)
         # instance.email = validated_data.get('email', instance.email)
         # instance.content = validated_data.get('content', instance.content)
         # instance.created = validated_data.get('created', instance.created)
