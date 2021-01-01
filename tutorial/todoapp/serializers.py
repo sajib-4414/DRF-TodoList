@@ -72,7 +72,7 @@ class TodoOutputSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TodoItem
-        fields = ['title', 'description','user_created',]
+        fields = ['title', 'description','due_datetime','remind_me_datetime','priority','user_created',]
 
 '''
 This serializer is used for creating new users by calling the back-end. Here we used the django auth class's user directly
