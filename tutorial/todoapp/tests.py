@@ -3,8 +3,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.test import TestCase
 from rest_framework import status
-from rest_framework.test import RequestsClient, APIClient
-from django.urls import reverse
+from rest_framework.test import APIClient
 
 
 # Create your tests here.
@@ -15,7 +14,7 @@ class TodoItemModelTests(TestCase):
 
     def test_check_default_values(self):
         """
-        create a todo item with just the required values and see if the other items value are prefilled
+        create a todoitem with just the required values and see if the other items value are prefilled
         with default values
         """
         todoitem = TodoItem(title='test title',description='test description')
@@ -159,3 +158,31 @@ class TodoCreationAPITests(TestCase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(todo_updated['title'],'todotitle')
 
+    def test_delete_todo_of_own(self):
+        client = get_authenticated_client()
+
+        todo_creation_params = get_todo_request_body()
+
+        #first create a todoitem
+        response1 = client.post('/todonew/', todo_creation_params)
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        todo_item_created = response1.data
+
+        #now try deleting it
+        response2 = client.delete('/todonew/'+str(todo_item_created['id']) + '/')
+        self.assertEqual(response2.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_todo_of_not_own(self):
+        client = get_authenticated_client()
+
+        object_init_values = get_todo_request_body()
+        del object_init_values['due_datetime']
+        date_time_str = '22-01-2020 15:20'
+        due_date_object = datetime.strptime(date_time_str, '%d-%m-%Y %H:%M')
+        todo_object = TodoItem(**object_init_values)
+        todo_object.due_datetime = due_date_object
+        todo_object.save()
+        object_id = todo_object.id
+
+        response = client.delete('/todonew/'+str(object_id) + '/')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
