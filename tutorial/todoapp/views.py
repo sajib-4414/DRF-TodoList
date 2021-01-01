@@ -31,7 +31,7 @@ class TodoListAPIView(APIView):
 
     def post(self, request, format=None):
         serializer = TodoInputSerializer(data=request.data.copy())
-        serializer.context["username"] = request.user.username
+        serializer.context["username"] = request.user.username #passing username, serializer will add the linked user later
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -65,7 +65,7 @@ class TodoDetailAPIView(APIView):
     def delete(self, request, pk, format=None):
         todo = self.get_object(pk)
         todo.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"delete": "delete success"},status=status.HTTP_204_NO_CONTENT)
 
 
 class UserCreateAPIView(generics.CreateAPIView):
