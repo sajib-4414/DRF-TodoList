@@ -79,7 +79,7 @@ class TodoUpdateSerializer(serializers.Serializer):
         """
         Check that the remind me date is before the before due date.
         """
-        print(data['remind_me_datetime'])
+        # print(data['remind_me_datetime'])
         if 'remind_me_datetime' in data:
             if 'due_datetime' in data:
                 if not (data['due_datetime'] > data['remind_me_datetime']):
