@@ -172,6 +172,24 @@ class TodoCreationAPITests(TestCase):
         response2 = client.delete('/todonew/'+str(todo_item_created['id']) + '/')
         self.assertEqual(response2.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_delete_todo_of_non_existent_todo(self):
+        client = get_authenticated_client()
+
+        todo_creation_params = get_todo_request_body()
+
+        #first create a todoitem
+        response1 = client.post('/todonew/', todo_creation_params)
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        todo_item_created = response1.data
+
+        #now try deleting it
+        response2 = client.delete('/todonew/'+str(todo_item_created['id']) + '/')
+        self.assertEqual(response2.status_code, status.HTTP_204_NO_CONTENT)
+
+        #as now it is deleted already, it is non existent, we try to delete it again
+        response3 = client.delete('/todonew/'+str(todo_item_created['id']) + '/')
+        self.assertEqual(response3.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_delete_todo_of_not_own(self):
         client = get_authenticated_client()
 
