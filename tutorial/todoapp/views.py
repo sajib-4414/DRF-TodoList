@@ -22,8 +22,9 @@ class TodoItemViewSet(viewsets.ModelViewSet):
 
 
 class TodoListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     '''
-    only for list
+    only for list and post
     '''
     def get(self, request, format=None):
         todos = TodoItem.objects.filter(user__username=request.user.username)
@@ -43,6 +44,7 @@ class TodoDetailAPIView(APIView):
     """
     Retrieve, update or delete a snippet instance.
     """
+    permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
         try:

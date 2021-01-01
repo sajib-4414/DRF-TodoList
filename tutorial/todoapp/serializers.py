@@ -35,7 +35,7 @@ class TodoInputSerializer(serializers.Serializer):
         """
         Check that the remind me date is before the before due date.
         """
-        print(data['remind_me_datetime'])
+        # print(data['remind_me_datetime'])
         if 'remind_me_datetime' in data:
             # remind_time = datetime.strptime(data['remind_me_datetime'], '%d-%m-%Y %H:%M')
             # due_time = datetime.strptime(data['due_datetime'], '%d-%m-%Y %H:%M')
