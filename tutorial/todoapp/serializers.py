@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from tutorial.todoapp.models import TodoItem
@@ -28,6 +30,18 @@ class TodoInputSerializer(serializers.Serializer):
         todoItem.user = User.objects.get(username=username)
         todoItem.save()
         return todoItem
+
+    def validate(self, data):
+        """
+        Check that the remind me date is before the before due date.
+        """
+        print(data['remind_me_datetime'])
+        if 'remind_me_datetime' in data:
+            # remind_time = datetime.strptime(data['remind_me_datetime'], '%d-%m-%Y %H:%M')
+            # due_time = datetime.strptime(data['due_datetime'], '%d-%m-%Y %H:%M')
+            if not (data['due_datetime'] > data['remind_me_datetime']):
+                raise serializers.ValidationError({"remind_me_date": "Reminder date has to be before due date"})
+        return data
 
 '''
 This serializer is used to update todos, the reason behind creating a new serializer is, while updating all the fields
