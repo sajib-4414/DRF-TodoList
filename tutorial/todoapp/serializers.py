@@ -18,7 +18,7 @@ class TodoInputSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=200)
     due_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',])
     remind_me_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',],required=False)
-
+    priority = serializers.ChoiceField(choices=TodoItem.PRIORITIES,required=False)
     """
     A serializer can either implement create or update methods or both as per django docs. 
     """
@@ -39,6 +39,7 @@ class TodoUpdateSerializer(serializers.Serializer):
     is_completed = serializers.BooleanField(required=False)
     due_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',],required=False)
     remind_me_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',],required=False)
+    priority = serializers.ChoiceField(choices=TodoItem.PRIORITIES,required=False)
     """
     A serializer can either implement create or update methods or both, as per django rest docs. 
     """
@@ -53,6 +54,8 @@ class TodoUpdateSerializer(serializers.Serializer):
             instance.due_datetime = validated_data.get('due_datetime', instance.due_datetime)
         if 'remind_me_datetime' in validated_data:
             instance.remind_me_datetime = validated_data.get('remind_me_datetime', instance.remind_me_datetime)
+        if 'priority' in validated_data:
+            instance.priority = validated_data.get('priority', instance.priority)
         instance.save()
         return instance
 
