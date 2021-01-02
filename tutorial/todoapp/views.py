@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status, generics
 from django.http import Http404
@@ -21,8 +22,9 @@ class TodoItemViewSet(viewsets.ModelViewSet):
 
 
 class TodoListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     '''
-    only for list
+    only for list and post
     '''
     def get(self, request, format=None):
         todos = TodoItem.objects.filter(user__username=request.user.username)
@@ -31,7 +33,7 @@ class TodoListAPIView(APIView):
 
     def post(self, request, format=None):
         serializer = TodoInputSerializer(data=request.data.copy())
-        serializer.context["username"] = request.user.username
+        serializer.context["username"] = request.user.username #passing username, serializer will add the linked user later
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -40,8 +42,9 @@ class TodoListAPIView(APIView):
 
 class TodoDetailAPIView(APIView):
     """
-    Retrieve, update or delete a snippet instance.
+    Retrieve, update or delete a todoitem instance.
     """
+    permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
         try:
@@ -56,6 +59,13 @@ class TodoDetailAPIView(APIView):
 
     def put(self, request, pk, format=None):
         todo = self.get_object(pk)
+        request_username = request.user.username
+        todo_username = ""
+        if todo.user:
+            todo_username = todo.user.username
+        if request_username!=todo_username:
+            raise ValidationError("You are not allowed to perform this action.")
+
         serializer = TodoUpdateSerializer(todo, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -64,8 +74,15 @@ class TodoDetailAPIView(APIView):
 
     def delete(self, request, pk, format=None):
         todo = self.get_object(pk)
+        request_username = request.user.username
+        todo_username = ""
+        if todo.user:
+            todo_username = todo.user.username
+        if request_username!=todo_username:
+            raise ValidationError("You are not allowed to perform this action.")
         todo.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"delete": "delete success"},status=status.HTTP_204_NO_CONTENT)
+
 
 
 class UserCreateAPIView(generics.CreateAPIView):

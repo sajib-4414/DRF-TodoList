@@ -21,27 +21,32 @@ class TodoInputSerializer(serializers.Serializer):
     due_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',])
     remind_me_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',],required=False)
     priority = serializers.ChoiceField(choices=TodoItem.PRIORITIES,required=False)
+    id = serializers.SerializerMethodField()
     """
     A serializer can either implement create or update methods or both as per django docs. 
     """
     def create(self, validated_data):
         todoItem = TodoItem.objects.create(**validated_data)
         username = self.context["username"]
-        todoItem.user = User.objects.get(username=username)
-        todoItem.save()
+        user_fetched = User.objects.filter(username=username).first()
+        if user_fetched:
+            todoItem.user = user_fetched
+            todoItem.save()
         return todoItem
 
     def validate(self, data):
         """
         Check that the remind me date is before the before due date.
         """
-        print(data['remind_me_datetime'])
+        # print(data['remind_me_datetime'])
         if 'remind_me_datetime' in data:
             # remind_time = datetime.strptime(data['remind_me_datetime'], '%d-%m-%Y %H:%M')
             # due_time = datetime.strptime(data['due_datetime'], '%d-%m-%Y %H:%M')
             if not (data['due_datetime'] > data['remind_me_datetime']):
                 raise serializers.ValidationError({"remind_me_date": "Reminder date has to be before due date"})
         return data
+    def get_id(self,obj):
+        return obj.id
 
 '''
 This serializer is used to update todos, the reason behind creating a new serializer is, while updating all the fields
@@ -54,6 +59,7 @@ class TodoUpdateSerializer(serializers.Serializer):
     due_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',],required=False)
     remind_me_datetime = serializers.DateTimeField(input_formats=['%d-%m-%Y %H:%M',],required=False)
     priority = serializers.ChoiceField(choices=TodoItem.PRIORITIES,required=False)
+    id = serializers.SerializerMethodField()
     """
     A serializer can either implement create or update methods or both, as per django rest docs. 
     """
@@ -77,7 +83,7 @@ class TodoUpdateSerializer(serializers.Serializer):
         """
         Check that the remind me date is before the before due date.
         """
-        print(data['remind_me_datetime'])
+        # print(data['remind_me_datetime'])
         if 'remind_me_datetime' in data:
             if 'due_datetime' in data:
                 if not (data['due_datetime'] > data['remind_me_datetime']):
@@ -88,20 +94,27 @@ class TodoUpdateSerializer(serializers.Serializer):
                     raise serializers.ValidationError({"remind_me_date": "Reminder date has to be before due date"})
         return data
 
+    def get_id(self,obj):
+        return obj.id
+
 '''
 This serializer is used to output todos in a certain format
 '''
 class TodoOutputSerializer(serializers.ModelSerializer):
     user_created = serializers.SerializerMethodField('get_user_created')
+    id = serializers.SerializerMethodField()
 
     def get_user_created(self, todo):
         if todo.user:
             return todo.user.username
         return ""
 
+    def get_id(self,obj):
+        return obj.id
+
     class Meta:
         model = TodoItem
-        fields = ['title', 'description','due_datetime','remind_me_datetime','priority','user_created',]
+        fields = ['title', 'description','due_datetime','remind_me_datetime','priority','user_created','id',]
 
 '''
 This serializer is used for creating new users by calling the back-end. Here we used the django auth class's user directly
