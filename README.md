@@ -9,5 +9,12 @@ Current the todo list back-end supports Creating, Updating, Deleting , Viewing T
 - Creating and Viewing TodoList(requires basic auth): localhost/todonew/
 - View Todo Detail (requires basic auth): localhost/todonew/todoid/
 
-### Todo item security
-A todo item can be created only with authenticated requests. An user can view only his todo lists and update and delete them.
+### Authentication
+A todo item can be created only with authenticated requests. The project uses Basic Auth. Once a user is created by the user endpoint
+, only then he will be able to create, update , delete his own todos.
+
+### Testing
+This project contatins testing classes and methods. Models, views, serializers were tested. Tests can be run using
+```python
+python manage.py test
+```
