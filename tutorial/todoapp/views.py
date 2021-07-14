@@ -6,7 +6,6 @@ from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
-
 from tutorial.todoapp.models import TodoItem
 from tutorial.todoapp.serializers import TodoItemSerializer, TodoOutputSerializer, TodoInputSerializer, UserSerializer, \
     TodoUpdateSerializer
